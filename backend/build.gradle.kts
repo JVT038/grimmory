@@ -9,8 +9,8 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.3.Final"
-    id("com.github.ben-manes.versions") version "0.54.0"
+    id("org.hibernate.orm") version "7.4.5.Final"
+    id("com.github.ben-manes.versions") version "0.56.0"
     jacoco
 }
 
@@ -169,7 +169,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.10.0")
+    implementation("org.flywaydb:flyway-mysql:13.0.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -181,26 +181,26 @@ dependencies {
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
     // --- TwelveMonkeys ImageIO ---
-    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
+    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.14.0")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
-    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.4.0"
+    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.5.0"
     implementation(epub4jCoords)
 
     // epub4j-native for native archive parsing
-    val epub4jNativeVersion = "1.4.0"
+    val epub4jNativeVersion = "1.5.0"
     val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:$epub4jNativeVersion"
     implementation(epub4jNativeCoords)
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.24")
+    implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
+    implementation("com.github.junrar:junrar:8.0.0")
 
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.22.2")
@@ -219,7 +219,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.1")
+    implementation("org.apache.tika:tika-core:3.3.2")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
@@ -229,7 +229,7 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.2.0"))
+    implementation(platform("tools.jackson:jackson-bom:3.2.1"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
 
