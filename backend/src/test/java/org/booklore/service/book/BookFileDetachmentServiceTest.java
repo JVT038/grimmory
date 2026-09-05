@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -129,7 +130,7 @@ class BookFileDetachmentServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(book.getBookFiles()).hasSize(1);
-        assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(10L);
+        assertThat(book.getBookFiles().stream().toList().getFirst().getId()).isEqualTo(10L);
         verify(auditService).log(eq(AuditAction.BOOK_FILE_DETACHED), anyString(), eq(1L), anyString());
         verify(bookRepository, times(2)).saveAndFlush(argThat(newBook -> {
             assertThat(newBook.getMetadata().getTitle()).isEqualTo("Test Book 1");
@@ -188,6 +189,35 @@ class BookFileDetachmentServiceTest {
     }
 
     @Test
+    void detachSupplementaryFile_CorrectOrder() {
+        BookEntity oldBook = createBook(1L);
+        BookEntity newBook = createBook(2L);
+        createBookFile(10L, oldBook, true, BookFileType.EPUB);
+        BookFileEntity suppFile = createBookFile(11L, oldBook, false, BookFileType.PDF);
+        suppFile.setFileName("notes.txt");
+
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(oldBook));
+        when(bookRepository.saveAndFlush(any(BookEntity.class))).thenAnswer(inv -> {
+            BookEntity saved = inv.getArgument(0);
+            if (saved.getId() == null) {
+                saved.setId(2L);
+            }
+            return saved;
+        });
+
+        setupMocksForGetUpdatedBook();
+        when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(newBook));
+
+        service.detachBookFile(1L, 11L, false);
+
+        //create inOrder object passing any mocks that need to be verified in order
+        InOrder inOrder = inOrder(bookRepository);
+
+        inOrder.verify(bookRepository).saveAndFlush(newBook);
+        inOrder.verify(bookRepository).saveAndFlush(oldBook);
+    }
+
+    @Test
     void detachPrimaryFile_alternativeGetsPromoted() {
         BookEntity book = createBook(1L);
         BookFileEntity primaryFile = createBookFile(10L, book, true, BookFileType.EPUB);
@@ -206,8 +236,8 @@ class BookFileDetachmentServiceTest {
         service.detachBookFile(1L, 10L, false);
 
         assertThat(book.getBookFiles()).hasSize(1);
-        assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(11L);
-        assertThat(book.getBookFiles().getFirst().isBookFormat()).isTrue();
+        assertThat(book.getBookFiles().stream().toList().getFirst().getId()).isEqualTo(11L);
+        assertThat(book.getBookFiles().stream().toList().getFirst().isBookFormat()).isTrue();
     }
 
     @Test
